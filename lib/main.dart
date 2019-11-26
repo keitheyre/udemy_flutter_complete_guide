@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import './question.dart';
+import 'package:flutter_complete_guide/result.dart';
+
+import './quiz.dart';
+import 'result.dart';
 
 void main() => runApp(MyApp());
 
 var _questionIndex = 0;
+var _totalScore = 0;
 
 class MyApp extends StatefulWidget {
   @override
@@ -13,45 +17,71 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  void answerQuestion() {
+  final _questions = const [
+    {
+      "question": "What's your favorite color?",
+      "answers": [
+        {"text": "Black", "score": 10},
+        {"text": "Red", "score": 5},
+        {"text": "Green", "score": 3},
+        {"text": "White", "score": 1}
+      ]
+    },
+    {
+      "question": "What's your favorite animal?",
+      "answers": [
+        {"text": "Rabbit", "score": 3},
+        {"text": "Elephant", "score": 11},
+        {"text": "Snake", "score": 5},
+        {"text": "Lion", "score": 9}
+      ]
+    },
+    {
+      "question": "Who is your favorite band?",
+      "answers": [
+        {"text": "Nirvana", "score": 2},
+        {"text": "The Who", "score": 5},
+        {"text": "Metallica", "score": 8},
+        {"text": "Kins of Leon", "score": 2}
+      ]
+    },
+  ];
+
+  void _answerQuestion(int score) {
+    //add to the total score
+    _totalScore += score;
+
     setState(() {
       _questionIndex += 1;
     });
 
-    print(_questionIndex);
+    if (_questionIndex < _questions.length) {
+      print("We have more questions");
+    }
+  }
+
+  void _resetQuiz() {
+    //Do in setState so the build method rebuilds the tree
+    setState(() {
+      _questionIndex = 0;
+      _totalScore = 0;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var questions = [
-      "What's your favorite color?",
-      "What's your favorite animal?",
-    ];
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('AppBar Demo'),
+          title: const Text('Quiz App'),
         ),
-        body: Column(
-          children: <Widget>[
-            Question(
-              questions[_questionIndex],
-            ),
-            RaisedButton(
-              child: Text("Answer 1"),
-              onPressed: answerQuestion,
-            ),
-            RaisedButton(
-              child: Text("Answer 2"),
-              onPressed: () => print("Answer 2"),
-            ),
-            RaisedButton(
-              child: Text("Answer 3"),
-              onPressed: () => print("Answer 3"),
-            ),
-          ],
-        ),
+        body: _questionIndex < _questions.length
+            ? Quiz(
+                answerQuestion: _answerQuestion,
+                questionIndex: _questionIndex,
+                questions: _questions,
+              )
+            : Result(_totalScore, _resetQuiz),
       ),
     );
   }
